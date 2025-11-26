@@ -10,7 +10,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const session = cookieStore.get(AUTH_COOKIE_NAME);
 
   if (!session) {
-    redirect('/login');
+    redirect('/register');
   }
 
   const user = JSON.parse(session.value);
