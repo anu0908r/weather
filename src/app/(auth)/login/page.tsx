@@ -68,15 +68,28 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setLoading('email');
-    const result = await signInWithEmail(values);
-    if (result.error) {
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: result.error,
-      });
+    try {
+      const result = await signInWithEmail(values);
+      if (result?.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Login Failed',
+          description: result.error,
+        });
+        setLoading(null);
+      }
+      // If no error, redirect happened
+    } catch (error) {
+      // Redirect throws, which is expected
+      if (error instanceof Error && !error.message.includes('NEXT_REDIRECT')) {
+        toast({
+          variant: 'destructive',
+          title: 'Login Failed',
+          description: 'An unexpected error occurred.',
+        });
+        setLoading(null);
+      }
     }
-    setLoading(null);
   }
 
   async function handleGoogleSignIn() {
@@ -158,6 +171,12 @@ export default function LoginPage() {
           )}
           Google
         </Button>
+        <p className="text-sm text-muted-foreground text-center mt-2">
+          Don't have an account?{' '}
+          <a href="/register" className="text-primary hover:underline">
+            Sign up
+          </a>
+        </p>
       </CardFooter>
     </Card>
   );

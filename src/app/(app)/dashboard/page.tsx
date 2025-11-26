@@ -6,6 +6,7 @@ import {
   getWeatherForCity,
   generateAIBackground,
 } from '@/app/actions/weather.actions';
+import { saveSearchHistory } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
 import { CurrentWeather } from '@/components/weather/current-weather';
 import { ForecastCard } from '@/components/weather/forecast-card';
@@ -43,15 +44,19 @@ export default function DashboardPage() {
         });
       } else if (result.data) {
         setWeatherData(result.data);
-        // Generate AI background
-        setIsBgLoading(true);
-        const bgResult = await generateAIBackground(
-          result.data.current.description
-        );
-        if (bgResult.data) {
-          setBackgroundImage(bgResult.data);
-        }
-        setIsBgLoading(false);
+        
+        // Save search to history
+        await saveSearchHistory(city);
+        
+        // AI background disabled (requires billing)
+        // setIsBgLoading(true);
+        // const bgResult = await generateAIBackground(
+        //   result.data.current.description
+        // );
+        // if (bgResult.data) {
+        //   setBackgroundImage(bgResult.data);
+        // }
+        // setIsBgLoading(false);
       }
     });
   };

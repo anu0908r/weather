@@ -14,7 +14,9 @@ const nextConfig: NextConfig = {
         'localhost:9002',
         '*.app.github.dev',
         'refactored-goldfish-69w5j5vv9pwvhw4-9002.app.github.dev',
+        'refactored-goldfish-69w5j5vv9pwvhw4.app.github.dev:9002',
       ],
+      bodySizeLimit: '2mb',
     },
   },
   images: {

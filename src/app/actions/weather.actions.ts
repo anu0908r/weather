@@ -18,14 +18,14 @@ interface GeocodingResult {
 }
 
 async function getCoordsForCity(city: string): Promise<{ lat: number; lon: number; name: string } | null> {
-  const maxRetries = 2;
+  const maxRetries = 3;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const url = `${GEOCODE_URL}?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
       console.log(`Fetching geocoding data for: ${city} (attempt ${attempt + 1})`);
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
       const response = await fetch(url, { 
         cache: 'no-store',
@@ -57,8 +57,8 @@ async function getCoordsForCity(city: string): Promise<{ lat: number; lon: numbe
     } catch (error) {
       console.error(`Geocoding error (attempt ${attempt + 1}):`, error);
       if (attempt === maxRetries) return null;
-      // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Wait longer before retrying (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
     }
   }
   return null;
@@ -107,14 +107,14 @@ export async function getWeatherForCity(
     };
   }
 
-  const maxRetries = 2;
+  const maxRetries = 3;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const weatherUrl = `${WEATHER_URL}?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m,cloud_cover&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=7&forecast_hours=24`;
       console.log(`Fetching weather data for: ${coords.name} (attempt ${attempt + 1})`);
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
       const weatherResponse = await fetch(weatherUrl, { 
         cache: 'no-store',
@@ -183,8 +183,8 @@ export async function getWeatherForCity(
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
         return { error: `Unable to fetch weather data. Please try again.` };
       }
-      // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Wait longer before retrying (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
     }
   }
   return { error: 'Unable to fetch weather data after multiple attempts.' };

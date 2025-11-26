@@ -13,23 +13,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { SearchHistory } from '@/lib/types';
-import { addDays, format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { History as HistoryIcon } from 'lucide-react';
-
-// Mock data for search history. In a real app, this would be fetched from Firestore.
-const getMockHistory = async (): Promise<SearchHistory[]> => {
-  return [
-    { id: '1', userId: '12345', city: 'New York', searchedAt: new Date() },
-    { id: '2', userId: '12345', city: 'London', searchedAt: addDays(new Date(), -1) },
-    { id: '3', userId: '12345', city: 'Tokyo', searchedAt: addDays(new Date(), -2) },
-    { id: '4', userId: '12345', city: 'Paris', searchedAt: addDays(new Date(), -3) },
-    { id: '5', userId: '12345', city: 'Sydney', searchedAt: addDays(new Date(), -5) },
-  ];
-};
+import { getSearchHistory } from '@/app/actions/user.actions';
 
 export default async function HistoryPage() {
-  const history = await getMockHistory();
+  const result = await getSearchHistory(20);
+  const history = result.data || [];
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -53,17 +43,28 @@ export default async function HistoryPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {history.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.city}</TableCell>
-                  <TableCell>
-                    {format(item.searchedAt, 'MMMM d, yyyy HH:mm')}
-                  </TableCell>
-                  <TableCell className="text-right text-muted-foreground">
-                    {format(item.searchedAt, "eee, h:mm a")}
+              {history.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                    No search history yet. Start searching for cities!
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                history.map((item: any) => (
+                  <TableRow key={item._id}>
+                    <TableCell className="font-medium">
+                      {item.city}
+                      {item.country && <span className="text-muted-foreground ml-2">({item.country})</span>}
+                    </TableCell>
+                    <TableCell>
+                      {format(new Date(item.searchedAt), 'MMMM d, yyyy HH:mm')}
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      {formatDistanceToNow(new Date(item.searchedAt), { addSuffix: true })}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
