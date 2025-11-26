@@ -3,12 +3,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Search, MapPin } from 'lucide-react';
+import { Loader2, Search, MapPin, Navigation } from 'lucide-react';
 import { searchCities } from '@/app/actions/weather.actions';
 
 interface SearchFormProps {
   onSearch: (city: string) => void;
   isSearching: boolean;
+  onUseLocation?: () => void;
 }
 
 interface CitySuggestion {
@@ -18,7 +19,7 @@ interface CitySuggestion {
   lon: number;
 }
 
-export function SearchForm({ onSearch, isSearching }: SearchFormProps) {
+export function SearchForm({ onSearch, isSearching, onUseLocation }: SearchFormProps) {
   const [city, setCity] = useState('');
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -73,29 +74,43 @@ export function SearchForm({ onSearch, isSearching }: SearchFormProps) {
 
   return (
     <div ref={wrapperRef} className="relative w-full max-w-md">
-      <form onSubmit={handleSubmit} className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          type="text"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-          placeholder="Search City..."
-          className="text-base bg-card pl-10 pr-10"
-          autoComplete="off"
-        />
-        {isLoadingSuggestions && (
-          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-        )}
-        <Button type="submit" disabled={isSearching || !city.trim()} className="sr-only">
-          {isSearching ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <Search className="h-5 w-5" />
+      <div className="flex gap-2">
+        <form onSubmit={handleSubmit} className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+            placeholder="Search City..."
+            className="text-base bg-card pl-10 pr-10"
+            autoComplete="off"
+          />
+          {isLoadingSuggestions && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
           )}
-          <span>Search</span>
-        </Button>
-      </form>
+          <Button type="submit" disabled={isSearching || !city.trim()} className="sr-only">
+            {isSearching ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Search className="h-5 w-5" />
+            )}
+            <span>Search</span>
+          </Button>
+        </form>
+        {onUseLocation && (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={onUseLocation}
+            title="Use my location"
+            className="flex-shrink-0"
+          >
+            <Navigation className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
 
       {showSuggestions && suggestions.length > 0 && (
         <div className="absolute z-50 w-full mt-2 bg-card border border-border rounded-lg shadow-lg max-h-[300px] overflow-y-auto">

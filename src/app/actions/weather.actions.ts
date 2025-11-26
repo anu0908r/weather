@@ -110,7 +110,7 @@ export async function getWeatherForCity(
   const maxRetries = 2;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const weatherUrl = `${WEATHER_URL}?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m,cloud_cover&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=7`;
+      const weatherUrl = `${WEATHER_URL}?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m,cloud_cover&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=7&forecast_hours=24`;
       console.log(`Fetching weather data for: ${coords.name} (attempt ${attempt + 1})`);
       
       const controller = new AbortController();
@@ -138,8 +138,9 @@ export async function getWeatherForCity(
     const sunrise = new Date(weatherData.daily.sunrise[0]);
     const sunset = new Date(weatherData.daily.sunset[0]);
 
-    const data: WeatherData = {
+      const data: WeatherData = {
       city: coords.name,
+      lastUpdated: Date.now(),
       current: {
         temp: Math.round(weatherData.current.temperature_2m),
         feels_like: Math.round(weatherData.current.apparent_temperature),
@@ -153,6 +154,11 @@ export async function getWeatherForCity(
         icon: currentWeather.icon,
         clouds: weatherData.current.cloud_cover,
       },
+      hourly: weatherData.hourly.time.slice(0, 24).map((time: string, index: number) => ({
+        dt: getUnixTime(new Date(time)),
+        temp: Math.round(weatherData.hourly.temperature_2m[index]),
+        weather_code: weatherData.hourly.weather_code[index],
+      })),
       daily: weatherData.daily.time.map((date: string, index: number) => {
         const dayWeather = getWeatherCondition(weatherData.daily.weather_code[index]);
         return {
@@ -169,9 +175,7 @@ export async function getWeatherForCity(
           }],
         };
       }),
-    };
-    
-      return { data };
+    };      return { data };
 
     } catch (err) {
       console.error(`Weather fetch error (attempt ${attempt + 1}):`, err);

@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { CurrentWeather } from '@/components/weather/current-weather';
 import { ForecastCard } from '@/components/weather/forecast-card';
 import { WeatherDetails } from '@/components/weather/weather-details';
+import { HourlyForecastCard } from '@/components/weather/hourly-forecast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Logo } from '@/components/icons';
@@ -42,15 +43,15 @@ export default function DashboardPage() {
         });
       } else if (result.data) {
         setWeatherData(result.data);
-        // AI background generation disabled - requires GOOGLE_API_KEY
-        // setIsBgLoading(true);
-        // const bgResult = await generateAIBackground(
-        //   result.data.current.description
-        // );
-        // if (bgResult.data) {
-        //   setBackgroundImage(bgResult.data);
-        // }
-        // setIsBgLoading(false);
+        // Generate AI background
+        setIsBgLoading(true);
+        const bgResult = await generateAIBackground(
+          result.data.current.description
+        );
+        if (bgResult.data) {
+          setBackgroundImage(bgResult.data);
+        }
+        setIsBgLoading(false);
       }
     });
   };
@@ -88,9 +89,12 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
           <div className="grid gap-6 xl:col-span-2">
             <CurrentWeather data={weatherData} onSearch={handleSearch} />
+            {weatherData.hourly && weatherData.hourly.length > 0 && (
+              <HourlyForecastCard hourly={weatherData.hourly} />
+            )}
             <Card className="bg-card/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Today / Week</CardTitle>
+                <CardTitle>7-Day Forecast</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-7">
                 {weatherData.daily.slice(0, 7).map((day) => (

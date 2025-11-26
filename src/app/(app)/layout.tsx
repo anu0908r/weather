@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { AUTH_COOKIE_NAME } from '@/lib/constants';
 import AppLayoutClient from '@/components/layout/app-layout-client';
 import { BackgroundProvider } from '@/context/background-context';
+import { SettingsProvider } from '@/context/settings-context';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
@@ -15,8 +16,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const user = JSON.parse(session.value);
 
   return (
-    <BackgroundProvider>
-      <AppLayoutClient user={user}>{children}</AppLayoutClient>
-    </BackgroundProvider>
+    <SettingsProvider>
+      <BackgroundProvider>
+        <AppLayoutClient user={user}>{children}</AppLayoutClient>
+      </BackgroundProvider>
+    </SettingsProvider>
   );
 }

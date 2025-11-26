@@ -36,10 +36,18 @@ export interface DailyForecast {
   ];
 }
 
+export interface HourlyForecast {
+  dt: number;
+  temp: number;
+  weather_code: number;
+}
+
 export interface WeatherData {
   city: string;
   current: CurrentWeather;
   daily: DailyForecast[];
+  hourly?: HourlyForecast[];
+  lastUpdated: number;
 }
 
 export interface SearchHistory {
