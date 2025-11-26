@@ -1,7 +1,7 @@
 
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '../ui/button';
-import { WeatherIcon } from './weather-icon';
 import { mockWeatherData } from '@/lib/mock-data';
 
 const otherCitiesData = Object.values(mockWeatherData).slice(0, 4);
@@ -29,7 +29,6 @@ export function OtherCities({ onCityClick }: OtherCitiesProps) {
               <p className="text-xs text-muted-foreground">H:{Math.round(cityData.daily[0].temp.max)}° L:{Math.round(cityData.daily[0].temp.min)}°</p>
               <p className="text-sm">{cityData.city}</p>
             </div>
-            <WeatherIcon iconCode={cityData.current.icon} className="w-10 h-10 text-primary" />
           </button>
         ))}
       </CardContent>
