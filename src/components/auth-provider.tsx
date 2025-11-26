@@ -20,14 +20,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// This is a mock user. In a real app, this would come from Firebase Auth.
-const MOCK_USER: User = {
-  uid: '12345',
-  email: 'user@example.com',
-  displayName: 'Demo User',
-  photoURL: 'https://picsum.photos/seed/avatar/100/100',
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
