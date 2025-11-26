@@ -1,13 +1,10 @@
 'use server';
 
 import type { WeatherData } from '@/lib/types';
-import { addDays, getUnixTime } from 'date-fns';
 import { generateWeatherBackground as generateWeatherBackgroundFlow } from '@/ai/flows/generate-weather-background';
+import { addDays, getUnixTime } from 'date-fns';
 
-// In a real app, you'd fetch from an API and cache in Firestore.
-// For this demo, we are returning mock data.
-
-export const mockWeatherData: Record<string, WeatherData> = {
+const mockWeatherData: Record<string, WeatherData> = {
   london: {
     city: 'London',
     current: {
@@ -186,6 +183,7 @@ export const mockWeatherData: Record<string, WeatherData> = {
     })),
   },
 };
+
 
 export async function getWeatherForCity(
   city: string
