@@ -1,13 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '../ui/button';
 import { WeatherIcon } from './weather-icon';
+import { mockWeatherData } from '@/app/actions/weather.actions';
 
-const otherCitiesData = [
-  { city: 'London', temp: 14, high: 23, low: 10, icon: '02d' },
-  { city: 'Tokyo', temp: 27, high: 32, low: 24, icon: '01d' },
-  { city: 'New York', temp: 16, high: 21, low: 12, icon: '01d' },
-  { city: 'Paris', temp: 26, high: 29, low: 18, icon: '02d' },
-];
+const otherCitiesData = Object.values(mockWeatherData).slice(0, 4);
 
 interface OtherCitiesProps {
     onCityClick: (city: string) => void;
@@ -28,11 +24,11 @@ export function OtherCities({ onCityClick }: OtherCitiesProps) {
             onClick={() => onCityClick(cityData.city)}
           >
             <div>
-              <p className="font-semibold">{cityData.temp}°</p>
-              <p className="text-xs text-muted-foreground">H:{cityData.high}° L:{cityData.low}°</p>
+              <p className="font-semibold">{Math.round(cityData.current.temp)}°</p>
+              <p className="text-xs text-muted-foreground">H:{Math.round(cityData.daily[0].temp.max)}° L:{Math.round(cityData.daily[0].temp.min)}°</p>
               <p className="text-sm">{cityData.city}</p>
             </div>
-            <WeatherIcon iconCode={cityData.icon} className="w-10 h-10 text-primary" />
+            <WeatherIcon iconCode={cityData.current.icon} className="w-10 h-10 text-primary" />
           </button>
         ))}
       </CardContent>
