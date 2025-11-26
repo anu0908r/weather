@@ -22,12 +22,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import {
-  signInWithEmail,
-  signInWithGoogle,
-} from '@/app/actions/auth.actions';
+import { signInWithEmail } from '@/app/actions/auth.actions';
 import { Loader2 } from 'lucide-react';
 
 const loginSchema = z.object({
@@ -37,26 +33,9 @@ const loginSchema = z.object({
     .min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
-function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      role="img"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <title>Google</title>
-      <path
-        fill="currentColor"
-        d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.62 1.62-4.55 1.62-3.87 0-7-3.13-7-7s3.13-7 7-7c1.73 0 3.22.65 4.38 1.62l2.35-2.35C18.13 2.18 15.48 1 12.48 1 7.02 1 3 5.02 3 9.5s4.02 8.5 9.48 8.5c2.6 0 4.92-.87 6.57-2.52 1.83-1.83 2.52-4.35 2.52-6.95 0-.6-.05-1.18-.16-1.72h-9.3v.01Z"
-      />
-    </svg>
-  );
-}
-
 export default function LoginPage() {
   const { toast } = useToast();
-  const [loading, setLoading] = useState<null | 'email' | 'google'>(null);
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -67,7 +46,7 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
-    setLoading('email');
+    setLoading(true);
     try {
       const result = await signInWithEmail(values);
       if (result?.error) {
@@ -76,7 +55,7 @@ export default function LoginPage() {
           title: 'Login Failed',
           description: result.error,
         });
-        setLoading(null);
+        setLoading(false);
       }
       // If no error, redirect happened
     } catch (error) {
@@ -87,22 +66,9 @@ export default function LoginPage() {
           title: 'Login Failed',
           description: 'An unexpected error occurred.',
         });
-        setLoading(null);
+        setLoading(false);
       }
     }
-  }
-
-  async function handleGoogleSignIn() {
-    setLoading('google');
-    const result = await signInWithGoogle();
-    if (result.error) {
-      toast({
-        variant: 'destructive',
-        title: 'Google Sign-In Failed',
-        description: result.error,
-      });
-    }
-    setLoading(null);
   }
 
   return (
@@ -142,36 +108,15 @@ export default function LoginPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={!!loading}>
-              {loading === 'email' && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Sign In with Email
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Sign In
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex flex-col gap-4">
-        <div className="relative w-full">
-          <Separator />
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
-            OR CONTINUE WITH
-          </span>
-        </div>
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={handleGoogleSignIn}
-          disabled={!!loading}
-        >
-          {loading === 'google' ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <GoogleIcon className="mr-2 h-4 w-4" />
-          )}
-          Google
-        </Button>
-        <p className="text-sm text-muted-foreground text-center mt-2">
+      <CardFooter className="flex flex-col gap-2">
+        <p className="text-sm text-muted-foreground text-center">
           Don't have an account?{' '}
           <a href="/register" className="text-primary hover:underline">
             Sign up
