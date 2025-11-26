@@ -180,5 +180,5 @@ export async function signOut(): Promise<{ error?: string }> {
     if (error instanceof Error) return { error: error.message };
     return { error: 'An unknown error occurred during sign out' };
   }
-  redirect('/login');
+  redirect('/register');
 }
