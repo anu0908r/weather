@@ -60,7 +60,7 @@ export const mockWeatherData: Record<string, WeatherData> = {
       pressure: 1008,
       wind_speed: 2.5,
       sunrise: getUnixTime(new Date()),
-      sunset: getUnixTime(addDays(new.Date(), 0.45)),
+      sunset: getUnixTime(addDays(new Date(), 0.45)),
       main: 'Rain',
       description: 'moderate rain',
       icon: '10d',
