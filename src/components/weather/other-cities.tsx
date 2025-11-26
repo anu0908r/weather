@@ -1,7 +1,8 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '../ui/button';
 import { WeatherIcon } from './weather-icon';
-import { mockWeatherData } from '@/app/actions/weather.actions';
+import { mockWeatherData } from '@/lib/mock-data';
 
 const otherCitiesData = Object.values(mockWeatherData).slice(0, 4);
 
