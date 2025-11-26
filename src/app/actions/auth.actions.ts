@@ -13,8 +13,8 @@ const loginSchema = z.object({
 
 const MOCK_USER: User = {
   uid: '12345',
-  email: 'user@example.com',
-  displayName: 'Demo User',
+  email: 'ananyau392@gmail.com',
+  displayName: 'Ananya',
   photoURL: 'https://picsum.photos/seed/avatar/100/100',
 };
 
@@ -29,7 +29,8 @@ export async function signInWithEmail(
 
   // In a real app, you would verify credentials with Firebase Auth
   if (
-    result.data.email === MOCK_USER.email
+    result.data.email === MOCK_USER.email &&
+    result.data.password === 'anu@2005'
   ) {
     const cookieStore = cookies();
     cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(MOCK_USER), {
