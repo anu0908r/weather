@@ -1,8 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AUTH_COOKIE_NAME } from '@/lib/constants';
-import AppSidebar from '@/components/layout/app-sidebar';
-import { BackgroundProvider } from '@/context/background-context';
 import AppLayoutClient from '@/components/layout/app-layout-client';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -15,9 +13,5 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const user = JSON.parse(session.value);
 
-  return (
-    <BackgroundProvider>
-      <AppLayoutClient user={user}>{children}</AppLayoutClient>
-    </BackgroundProvider>
-  );
+  return <AppLayoutClient user={user}>{children}</AppLayoutClient>;
 }

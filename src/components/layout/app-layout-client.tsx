@@ -1,10 +1,9 @@
 'use client';
 
-import { useBackground } from '@/context/background-context';
-import { cn } from '@/lib/utils';
 import type { User } from '@/lib/types';
 import AppSidebar from './app-sidebar';
-import { Skeleton } from '../ui/skeleton';
+import AppHeader from './app-header';
+import { SidebarProvider } from '../ui/sidebar';
 
 export default function AppLayoutClient({
   user,
@@ -13,25 +12,15 @@ export default function AppLayoutClient({
   user: User;
   children: React.ReactNode;
 }) {
-  const { backgroundImage, isBgLoading } = useBackground();
-
   return (
-    <div
-      className="relative flex min-h-screen w-full bg-cover bg-center bg-no-repeat transition-all duration-1000"
-      style={{ backgroundImage: `url(${backgroundImage})` }}
-    >
-      <div className="absolute inset-0 z-0 bg-background/50 backdrop-blur-sm transition-all duration-1000" />
-      
-      {isBgLoading && (
-        <div className="absolute inset-0 z-10 transition-opacity duration-500">
-           <Skeleton className="h-full w-full" />
-        </div>
-      )}
-
-      <div className="relative z-20 flex w-full">
+    <SidebarProvider>
+      <div className="relative flex min-h-screen w-full bg-background">
         <AppSidebar user={user} />
-        <main className="flex-1 overflow-auto">{children}</main>
+        <div className="flex flex-col flex-1">
+          <AppHeader user={user} />
+          <main className="flex-1 overflow-auto">{children}</main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }

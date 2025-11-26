@@ -4,32 +4,28 @@ import { useState, useEffect, useTransition } from 'react';
 import type { WeatherData } from '@/lib/types';
 import {
   getWeatherForCity,
-  generateAIBackground,
 } from '@/app/actions/weather.actions';
 import { useToast } from '@/hooks/use-toast';
-import { SearchForm } from '@/components/weather/search-form';
 import { CurrentWeather } from '@/components/weather/current-weather';
 import { ForecastCard } from '@/components/weather/forecast-card';
 import { WeatherDetails } from '@/components/weather/weather-details';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useBackground } from '@/context/background-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Logo } from '@/components/icons';
 import { APP_NAME } from '@/lib/constants';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
+import { OtherCities } from '@/components/weather/other-cities';
 
 export default function DashboardPage() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSearching, startSearchTransition] = useTransition();
   const { toast } = useToast();
-  const { setBackgroundImage, setIsBgLoading } = useBackground();
 
   const handleSearch = (city: string) => {
     setError(null);
     setWeatherData(null);
-    setIsBgLoading(true);
 
     startSearchTransition(async () => {
       const result = await getWeatherForCity(city);
@@ -40,16 +36,8 @@ export default function DashboardPage() {
           title: 'Search Failed',
           description: result.error,
         });
-        setIsBgLoading(false);
       } else if (result.data) {
         setWeatherData(result.data);
-        // Don't await this, let it run in the background
-        generateAIBackground(result.data.current.main).then((bgResult) => {
-          if (bgResult.data) {
-            setBackgroundImage(bgResult.data);
-          }
-          setIsBgLoading(false);
-        });
       }
     });
   };
@@ -57,15 +45,11 @@ export default function DashboardPage() {
   useEffect(() => {
     // Load default weather on initial load
     handleSearch('New York');
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      <header className="mb-8">
-        <SearchForm onSearch={handleSearch} isSearching={isSearching} />
-      </header>
-
       {isSearching && !weatherData && <DashboardSkeleton />}
 
       {error && !isSearching && (
@@ -77,22 +61,23 @@ export default function DashboardPage() {
       )}
 
       {!isSearching && weatherData && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <div className="grid gap-6 xl:col-span-2">
             <CurrentWeather data={weatherData} />
-          </div>
-          <div className="grid gap-6 lg:col-span-2">
-            <WeatherDetails data={weatherData.current} />
-            <Card className="bg-card/80 backdrop-blur-sm">
+             <Card className="bg-card">
               <CardHeader>
-                <CardTitle>5-Day Forecast</CardTitle>
+                <CardTitle>Today / Week</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
-                {weatherData.daily.map((day) => (
+              <CardContent className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-7">
+                {weatherData.daily.slice(0, 7).map((day) => (
                   <ForecastCard key={day.dt} day={day} />
                 ))}
               </CardContent>
             </Card>
+          </div>
+          <div className="grid gap-6 xl:col-span-1">
+            <WeatherDetails data={weatherData.current} />
+            <OtherCities />
           </div>
         </div>
       )}
@@ -110,14 +95,15 @@ export default function DashboardPage() {
 
 function DashboardSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-1">
-        <Skeleton className="h-[300px] w-full" />
-      </div>
-      <div className="grid gap-6 lg:col-span-2">
-        <Skeleton className="h-[150px] w-full" />
-        <Skeleton className="h-[200px] w-full" />
-      </div>
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+       <div className="grid gap-6 xl:col-span-2">
+          <Skeleton className="h-[260px] w-full" />
+          <Skeleton className="h-[180px] w-full" />
+       </div>
+       <div className="grid gap-6 xl:col-span-1">
+         <Skeleton className="h-[300px] w-full" />
+         <Skeleton className="h-[140px] w-full" />
+       </div>
     </div>
   );
 }

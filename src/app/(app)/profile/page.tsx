@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { signOut } from '@/app/actions/auth.actions';
 import { LogOut, Mail, User as UserIcon, Loader2 } from 'lucide-react';
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -31,7 +31,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      <Card className="max-w-md mx-auto bg-card/80 backdrop-blur-sm">
+      <Card className="max-w-md mx-auto bg-card">
         <CardHeader className="items-center text-center">
           <Avatar className="w-24 h-24 mb-4 border-2 border-primary">
             <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? ''} />

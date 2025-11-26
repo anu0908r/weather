@@ -1,2 +1,2 @@
-export const APP_NAME = 'WeatherWise';
-export const AUTH_COOKIE_NAME = 'weatherwise-auth';
+export const APP_NAME = 'SkySense';
+export const AUTH_COOKIE_NAME = 'skysense-auth';

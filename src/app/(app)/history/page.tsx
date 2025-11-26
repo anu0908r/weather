@@ -33,7 +33,7 @@ export default async function HistoryPage() {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      <Card className="bg-card/80 backdrop-blur-sm">
+      <Card className="bg-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <HistoryIcon className="h-6 w-6" />

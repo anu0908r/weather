@@ -3,10 +3,8 @@ import type { CurrentWeather } from '@/lib/types';
 import {
   Droplets,
   Wind,
-  Gauge,
   Sunrise,
   Sunset,
-  Cloud,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -15,56 +13,46 @@ interface WeatherDetailsProps {
 }
 
 export function WeatherDetails({ data }: WeatherDetailsProps) {
-  const details = [
-    {
-      icon: Droplets,
-      label: 'Humidity',
-      value: `${data.humidity}%`,
-    },
-    {
-      icon: Wind,
-      label: 'Wind Speed',
-      value: `${data.wind_speed.toFixed(1)} m/s`,
-    },
-    {
-      icon: Gauge,
-      label: 'Pressure',
-      value: `${data.pressure} hPa`,
-    },
-    {
-      icon: Cloud,
-      label: 'Cloudiness',
-      value: `${data.clouds}%`,
-    },
-    {
-      icon: Sunrise,
-      label: 'Sunrise',
-      value: format(new Date(data.sunrise * 1000), 'HH:mm'),
-    },
-    {
-      icon: Sunset,
-      label: 'Sunset',
-      value: format(new Date(data.sunset * 1000), 'HH:mm'),
-    },
-  ];
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm">
+    <Card className="bg-card">
       <CardHeader>
-        <CardTitle>Current Details</CardTitle>
+        <CardTitle>Today Highlight</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {details.map((detail) => (
-            <div key={detail.label} className="flex items-center gap-3">
-              <detail.icon className="w-6 h-6 text-muted-foreground" />
-              <div>
-                <p className="text-sm text-muted-foreground">{detail.label}</p>
-                <p className="font-semibold">{detail.value}</p>
-              </div>
+      <CardContent className="grid grid-cols-2 gap-4">
+        <Card className="p-4 bg-background">
+            <p className="text-sm text-muted-foreground mb-2">UV Index</p>
+            <div className="w-24 h-24 rounded-full border-8 border-primary flex items-center justify-center text-2xl font-bold mx-auto">
+                UV
             </div>
-          ))}
-        </div>
+        </Card>
+         <Card className="p-4 bg-background">
+            <p className="text-sm text-muted-foreground mb-2">Wind Status</p>
+             <p className="text-3xl font-bold">{data.wind_speed.toFixed(1)}<span className="text-lg">m/s</span></p>
+            <Wind className="w-8 h-8 text-muted-foreground mt-2" />
+        </Card>
+         <Card className="p-4 bg-background">
+            <p className="text-sm text-muted-foreground mb-2">Sunrise & Sunset</p>
+            <div className="flex items-center gap-2">
+                <Sunrise className="w-8 h-8 text-amber-400" />
+                <div>
+                    <p className="font-semibold">{format(new Date(data.sunrise * 1000), 'HH:mm')}</p>
+                    <p className="text-xs text-muted-foreground">Sunrise</p>
+                </div>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+                <Sunset className="w-8 h-8 text-amber-600" />
+                <div>
+                    <p className="font-semibold">{format(new Date(data.sunset * 1000), 'HH:mm')}</p>
+                    <p className="text-xs text-muted-foreground">Sunset</p>
+                </div>
+            </div>
+        </Card>
+        <Card className="p-4 bg-background">
+            <p className="text-sm text-muted-foreground mb-2">Humidity</p>
+            <p className="text-3xl font-bold">{data.humidity}<span className="text-lg">%</span></p>
+            <Droplets className="w-8 h-8 text-muted-foreground mt-2" />
+        </Card>
       </CardContent>
     </Card>
   );
