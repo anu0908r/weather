@@ -20,19 +20,44 @@ const MOCK_USER: User = {
 
 export async function signInWithEmail(
   values: z.infer<typeof loginSchema>
-): Promise<{ error?: string }> {
-  const result = loginSchema.safeParse(values);
+): Promise<{ error?: string; success?: boolean }> {
+  try {
+    const result = loginSchema.safeParse(values);
 
-  if (!result.success) {
-    return { error: 'Invalid email or password format.' };
+    if (!result.success) {
+      return { error: 'Invalid email or password format.' };
+    }
+
+    // In a real app, you would verify credentials with Firebase Auth
+    if (
+      result.data.email === MOCK_USER.email &&
+      result.data.password === 'anu@2005'
+    ) {
+      const cookieStore = await cookies();
+      cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(MOCK_USER), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 7, // 1 week
+        path: '/',
+      });
+      redirect('/dashboard');
+    } else {
+      return { error: 'Invalid email or password.' };
+    }
+  } catch (error) {
+    // If redirect throws, let it propagate
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error;
+    }
+    console.error('Sign in error:', error);
+    return { error: 'An error occurred during sign in.' };
   }
+}
 
-  // In a real app, you would verify credentials with Firebase Auth
-  if (
-    result.data.email === MOCK_USER.email &&
-    result.data.password === 'anu@2005'
-  ) {
-    const cookieStore = cookies();
+export async function signInWithGoogle(): Promise<{ error?: string; success?: boolean }> {
+  // In a real app, this would handle the Google Sign-In redirect flow
+  try {
+    const cookieStore = await cookies();
     cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(MOCK_USER), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -40,31 +65,19 @@ export async function signInWithEmail(
       path: '/',
     });
     redirect('/dashboard');
-  } else {
-    return { error: 'Invalid email or password.' };
-  }
-}
-
-export async function signInWithGoogle(): Promise<{ error?: string }> {
-  // In a real app, this would handle the Google Sign-In redirect flow
-  try {
-    const cookieStore = cookies();
-    cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(MOCK_USER), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-      path: '/',
-    });
   } catch (error) {
-    if (error instanceof Error) return { error: error.message };
-    return { error: 'An unknown error occurred' };
+    // If redirect throws, let it propagate
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error;
+    }
+    console.error('Google sign in error:', error);
+    return { error: 'An error occurred during Google sign in.' };
   }
-  redirect('/dashboard');
 }
 
 export async function signOut(): Promise<{ error?: string }> {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     cookieStore.delete(AUTH_COOKIE_NAME);
   } catch (error) {
     if (error instanceof Error) return { error: error.message };

@@ -7,7 +7,20 @@ import { SidebarProvider } from '../ui/sidebar';
 import { useBackground } from '@/context/background-context';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, createContext, useContext } from 'react';
+
+interface SearchContextType {
+  searchCity: (city: string) => void;
+  isSearching: boolean;
+}
+
+const SearchContext = createContext<SearchContextType>({
+  searchCity: () => {},
+  isSearching: false,
+});
+
+export const useSearch = () => useContext(SearchContext);
 
 export default function AppLayoutClient({
   user,
@@ -18,50 +31,62 @@ export default function AppLayoutClient({
 }) {
   const { backgroundImage, isBgLoading } = useBackground();
   const pathname = usePathname();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearching, setIsSearching] = useState(false);
 
-  // This is a placeholder for a real search handler
   const handleSearch = (city: string) => {
-    // In a real app, this would likely trigger a navigation
-    // or update a global state. For now, we'll just log it.
-    console.log('Searching for:', city);
+    setSearchQuery(city);
+    setIsSearching(true);
+    // Navigate to dashboard if not already there
+    if (!pathname.startsWith('/dashboard')) {
+      router.push('/dashboard');
+    }
+    // Dispatch custom event that the dashboard page can listen to
+    window.dispatchEvent(new CustomEvent('weatherSearch', { detail: { city } }));
+    setTimeout(() => setIsSearching(false), 500);
   };
-  
-  // This is a placeholder for a real search loading state
-  const isSearching = false;
 
   const isDashboard = pathname.startsWith('/dashboard');
 
-  return (
-    <SidebarProvider>
-      <div
-        className={cn(
-          'relative flex min-h-screen w-full bg-background transition-all duration-1000',
-          isDashboard && 'bg-cover bg-center'
-        )}
-        style={
-          isDashboard && backgroundImage
-            ? { backgroundImage: `url(${backgroundImage})` }
-            : {}
-        }
-      >
-        {isDashboard && (
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-        )}
-        {isBgLoading && isDashboard && (
-          <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20">
-            <div className="flex flex-col items-center gap-2 text-white">
-              <Loader2 className="w-8 h-8 animate-spin" />
-              <p className="text-lg">Generating background...</p>
-            </div>
-          </div>
-        )}
+  const searchContextValue = {
+    searchCity: handleSearch,
+    isSearching,
+  };
 
-        <AppSidebar user={user} />
-        <div className="flex flex-col flex-1 z-10">
-          <AppHeader user={user} onSearch={handleSearch} isSearching={isSearching} />
-          <main className="flex-1 overflow-auto">{children}</main>
+  return (
+    <SearchContext.Provider value={searchContextValue}>
+      <SidebarProvider>
+        <div
+          className={cn(
+            'relative flex min-h-screen w-full bg-background transition-all duration-1000',
+            isDashboard && 'bg-cover bg-center'
+          )}
+          style={
+            isDashboard && backgroundImage
+              ? { backgroundImage: `url(${backgroundImage})` }
+              : {}
+          }
+        >
+          {isDashboard && (
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          )}
+          {isBgLoading && isDashboard && (
+            <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20">
+              <div className="flex flex-col items-center gap-2 text-white">
+                <Loader2 className="w-8 h-8 animate-spin" />
+                <p className="text-lg">Generating background...</p>
+              </div>
+            </div>
+          )}
+
+          <AppSidebar user={user} />
+          <div className="flex flex-col flex-1 z-10">
+            <AppHeader user={user} onSearch={handleSearch} isSearching={isSearching} />
+            <main className="flex-1 overflow-auto">{children}</main>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </SearchContext.Provider>
   );
 }

@@ -4,8 +4,8 @@ import { AUTH_COOKIE_NAME } from '@/lib/constants';
 import AppLayoutClient from '@/components/layout/app-layout-client';
 import { BackgroundProvider } from '@/context/background-context';
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = cookies();
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
   const session = cookieStore.get(AUTH_COOKIE_NAME);
 
   if (!session) {

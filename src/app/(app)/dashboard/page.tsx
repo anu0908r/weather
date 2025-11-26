@@ -42,14 +42,15 @@ export default function DashboardPage() {
         });
       } else if (result.data) {
         setWeatherData(result.data);
-        setIsBgLoading(true);
-        const bgResult = await generateAIBackground(
-          result.data.current.description
-        );
-        if (bgResult.data) {
-          setBackgroundImage(bgResult.data);
-        }
-        setIsBgLoading(false);
+        // AI background generation disabled - requires GOOGLE_API_KEY
+        // setIsBgLoading(true);
+        // const bgResult = await generateAIBackground(
+        //   result.data.current.description
+        // );
+        // if (bgResult.data) {
+        //   setBackgroundImage(bgResult.data);
+        // }
+        // setIsBgLoading(false);
       }
     });
   };
@@ -57,6 +58,17 @@ export default function DashboardPage() {
   useEffect(() => {
     // Load default weather on initial load
     handleSearch('New York');
+
+    // Listen for search events from the header
+    const handleWeatherSearch = (event: CustomEvent<{ city: string }>) => {
+      handleSearch(event.detail.city);
+    };
+
+    window.addEventListener('weatherSearch', handleWeatherSearch as EventListener);
+    
+    return () => {
+      window.removeEventListener('weatherSearch', handleWeatherSearch as EventListener);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
