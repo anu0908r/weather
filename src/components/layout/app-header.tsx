@@ -16,7 +16,15 @@ import { LogOut, User as UserIcon, History } from 'lucide-react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function AppHeader({ user }: { user: User }) {
+export default function AppHeader({
+  user,
+  onSearch,
+  isSearching,
+}: {
+  user: User;
+  onSearch: (city: string) => void;
+  isSearching: boolean;
+}) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -27,9 +35,9 @@ export default function AppHeader({ user }: { user: User }) {
   };
 
   return (
-    <header className="flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
+    <header className="flex h-16 items-center gap-4 border-b bg-background/50 backdrop-blur-sm px-4 md:px-6 sticky top-0 z-10">
       <div className="flex-1">
-        <SearchForm onSearch={(city) => {}} isSearching={false} />
+        <SearchForm onSearch={onSearch} isSearching={isSearching} />
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

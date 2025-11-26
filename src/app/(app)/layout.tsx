@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AUTH_COOKIE_NAME } from '@/lib/constants';
 import AppLayoutClient from '@/components/layout/app-layout-client';
+import { BackgroundProvider } from '@/context/background-context';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = cookies();
@@ -13,5 +14,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const user = JSON.parse(session.value);
 
-  return <AppLayoutClient user={user}>{children}</AppLayoutClient>;
+  return (
+    <BackgroundProvider>
+      <AppLayoutClient user={user}>{children}</AppLayoutClient>
+    </BackgroundProvider>
+  );
 }

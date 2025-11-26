@@ -4,6 +4,7 @@ import { useState, useEffect, useTransition } from 'react';
 import type { WeatherData } from '@/lib/types';
 import {
   getWeatherForCity,
+  generateAIBackground,
 } from '@/app/actions/weather.actions';
 import { useToast } from '@/hooks/use-toast';
 import { CurrentWeather } from '@/components/weather/current-weather';
@@ -16,16 +17,19 @@ import { APP_NAME } from '@/lib/constants';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
 import { OtherCities } from '@/components/weather/other-cities';
+import { useBackground } from '@/context/background-context';
 
 export default function DashboardPage() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSearching, startSearchTransition] = useTransition();
   const { toast } = useToast();
+  const { setBackgroundImage, setIsBgLoading } = useBackground();
 
   const handleSearch = (city: string) => {
     setError(null);
     setWeatherData(null);
+    setBackgroundImage('');
 
     startSearchTransition(async () => {
       const result = await getWeatherForCity(city);
@@ -38,6 +42,14 @@ export default function DashboardPage() {
         });
       } else if (result.data) {
         setWeatherData(result.data);
+        setIsBgLoading(true);
+        const bgResult = await generateAIBackground(
+          result.data.current.description
+        );
+        if (bgResult.data) {
+          setBackgroundImage(bgResult.data);
+        }
+        setIsBgLoading(false);
       }
     });
   };
@@ -63,8 +75,8 @@ export default function DashboardPage() {
       {!isSearching && weatherData && (
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
           <div className="grid gap-6 xl:col-span-2">
-            <CurrentWeather data={weatherData} />
-             <Card className="bg-card">
+            <CurrentWeather data={weatherData} onSearch={handleSearch} />
+            <Card className="bg-card/80 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle>Today / Week</CardTitle>
               </CardHeader>
@@ -77,7 +89,7 @@ export default function DashboardPage() {
           </div>
           <div className="grid gap-6 xl:col-span-1">
             <WeatherDetails data={weatherData.current} />
-            <OtherCities />
+            <OtherCities onCityClick={handleSearch} />
           </div>
         </div>
       )}
@@ -96,14 +108,14 @@ export default function DashboardPage() {
 function DashboardSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-       <div className="grid gap-6 xl:col-span-2">
-          <Skeleton className="h-[260px] w-full" />
-          <Skeleton className="h-[180px] w-full" />
-       </div>
-       <div className="grid gap-6 xl:col-span-1">
-         <Skeleton className="h-[300px] w-full" />
-         <Skeleton className="h-[140px] w-full" />
-       </div>
+      <div className="grid gap-6 xl:col-span-2">
+        <Skeleton className="h-[260px] w-full" />
+        <Skeleton className="h-[180px] w-full" />
+      </div>
+      <div className="grid gap-6 xl:col-span-1">
+        <Skeleton className="h-[300px] w-full" />
+        <Skeleton className="h-[140px] w-full" />
+      </div>
     </div>
   );
 }
