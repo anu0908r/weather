@@ -166,6 +166,10 @@ src/
 
 **Ananya** - [@anu0908r](https://github.com/anu0908r)
 
+## 👥 Contributors
+
+- Ananya
+
 ---
 
 Made with ❤️ using MERN Stack (MongoDB + Next.js)
