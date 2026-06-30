@@ -168,8 +168,4 @@ src/
 
 ## 👥 Contributors
 
-- Ananya
 
----
-
-Made with ❤️ using MERN Stack (MongoDB + Next.js)
